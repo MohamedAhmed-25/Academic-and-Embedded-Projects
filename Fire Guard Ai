@@ -1,1 +1,57 @@
+import cv2
+import numpy as np
+import tensorflow as tf
 
+try:
+    model = tf.keras.models.load_model('fire_detection_model.h5')
+    print("AI Model loaded successfully!")
+except:
+    print("Model file not found. Running with placeholder logic for setup demo.")
+    model = None
+
+cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    print("Error: Could not open webcam.")
+    exit()
+
+print("Fire Guard AI is running... Press 'q' to exit.")
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+
+    resized_frame = cv2.resize(frame, (224, 224))
+    preprocess_frame = resized_frame.astype('float32') / 255.0
+    preprocess_frame = np.expand_dims(preprocess_frame, axis=0)
+
+    if model is not None:
+        prediction = model.predict(preprocess_frame, verbose=0)
+        fire_prob = prediction[0][0] 
+        is_fire = fire_prob > 0.70 # حد الثقة 70%
+    else:
+        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        lower_fire = np.array([0, 50, 50], dtype="uint8")
+        upper_fire = np.array([35, 255, 255], dtype="uint8")
+        mask = cv2.inRange(hsv, lower_fire, upper_fire)
+        is_fire = cv2.countNonZero(mask) > 3000
+
+    if is_fire:
+        h, w, _ = frame.shape
+        cv2.rectangle(frame, (10, 10), (w-10, h-10), (0, 0, 255), 4)
+        
+        cv2.putText(frame, "WARNING: FIRE DETECTED!", (50, 50), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.2, (0, 0, 255), 3, cv2.LINE_AA)
+    else:
+        cv2.putText(frame, "SYSTEM STATUS: SECURE", (50, 50), 
+                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0), 2, cv2.LINE_AA)
+
+    cv2.imshow("Fire Guard AI - Real-time Detection", frame)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
+print("System shutdown cleanly.")
