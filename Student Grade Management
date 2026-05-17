@@ -1,273 +1,199 @@
-/*
-Energy-Efficient Smart Street Lighting System
-Components: Arduino + LDR + PIR Sensor + 3 LEDs
+#include <iostream>
+#include <fstream>
+#include <string>
+using namespace std;
 
-Description:
+const int MAX = 100;
+const int SUBJECTS = 5;
 
-LDR detects darkness and turns on LEDs at DIM brightness
+// أسماء المواد
+string subjectNames[SUBJECTS] = {
+    "Math 1",
+    "Discrete Math",
+    "Programming 1",
+    "Introduction to CS",
+    "Electronic Physics"
+};
 
-PIR detects motion and switches LEDs to BRIGHT mode
+// struct الطالب
+struct Student {
+    int id;
+    string name;
+    int level;
+    int marks[SUBJECTS];
+    int total;
+    double average;
+    bool passed;
+};
 
-Returns to DIM mode after motion timeout
+// حساب المجموع والمتوسط وحالة النجاح
+void calculate(Student& s) {
+    s.total = 0;
 
-Controls 3 LEDs simultaneously
+    for (int i = 0; i < SUBJECTS; i++) {
+        s.total += s.marks[i];
+    }
 
+    s.average = s.total / (double)SUBJECTS;
 
-Hardware Connections:
-
-LDR: Connected to A0 (analog) with voltage divider (10k resistor)
-
-PIR: Connected to D2 (digital input)
-
-LED 1: Connected to D9 (PWM output) via MOSFET/Relay
-
-LED 2: Connected to D10 (PWM output) via MOSFET/Relay
-
-LED 3: Connected to D11 (PWM output) via MOSFET/Relay
-*/
-
-
-// Pin definitions
-const int LDR_PIN = A0;           // LDR analog input pin
-const int PIR_PIN = 2;            // PIR digital input pin
-const int LED_PIN_1 = 9;          // LED 1 PWM output pin
-const int LED_PIN_2 = 10;         // LED 2 PWM output pin
-const int LED_PIN_3 = 11;         // LED 3 PWM output pin
-
-// Sensor threshold and brightness levels
-const int LDR_THRESHOLD = 400;    // Threshold for night detection (0-1023)
-// Values < 400 = Dark/Night
-// Values >= 400 = Bright/Day
-// Adjust based on your LDR and lighting conditions
-
-const int DIM_BRIGHTNESS = 80;    // Low brightness level (0-255)
-// Approximately 30% brightness for energy saving
-
-const int BRIGHT_BRIGHTNESS = 255; // Maximum brightness level (0-255)
-// 100% brightness when motion detected
-
-// Timing constants
-const unsigned long BRIGHT_DURATION = 1000; // Time to stay bright after motion (ms)
-// 10000 ms = 10 seconds
-
-// Variables
-int ldrValue = 0;                 // Stores LDR reading
-int pirState = LOW;               // Current PIR state
-int lastPirState = LOW;           // Previous PIR state
-unsigned long motionDetectedTime = 0; // Timestamp of last motion
-bool motionActive = false;        // Flag for active motion state
-
-void setup() {
-// Initialize serial communication for debugging (optional)
-Serial.begin(9600);
-
-// Configure pin modes
-pinMode(PIR_PIN, INPUT);        // PIR as input
-pinMode(LED_PIN_1, OUTPUT);     // LED 1 as output
-pinMode(LED_PIN_2, OUTPUT);     // LED 2 as output
-pinMode(LED_PIN_3, OUTPUT);     // LED 3 as output
-
-// PIR sensor needs warm-up time (30-60 seconds)
-Serial.println("Initializing PIR sensor...");
-delay(1000);                    // Short delay for stability
-Serial.println("System Ready!");
+    if (s.average >= 50)
+        s.passed = true;
+    else
+        s.passed = false;
 }
 
-void loop() {
-// Read LDR value (0 = very dark, 1023 = very bright)
-ldrValue = analogRead(LDR_PIN);
+// إضافة طالب
+void addStudent(Student students[], int& count) {
+    if (count >= MAX) {
+        cout << "Cannot add more students!\n";
+        return;
+    }
 
-// Read PIR sensor state
-pirState = digitalRead(PIR_PIN);
+    cout << "Enter student ID: ";
+    cin >> students[count].id;
 
-// Debug output (optional - comment out in production)
-Serial.print("LDR: ");
-Serial.print(ldrValue);
-Serial.print(" | PIR: ");
-Serial.println(pirState);
+    cout << "Enter student name: ";
+    cin.ignore();
+    getline(cin, students[count].name);
 
-// Check if it's night (dark environment)
-if (ldrValue < LDR_THRESHOLD) {
-// It's NIGHT - lights should be ON
+    cout << "Enter student level: ";
+    cin >> students[count].level;
 
-// Check for motion detection  
-if (pirState == HIGH) {  
-  // Motion detected!  
-  if (lastPirState == LOW) {  
-    Serial.println("Motion DETECTED! Switching to BRIGHT mode");  
-  }  
-    
-  // Set all LEDs to maximum brightness  
-  analogWrite(LED_PIN_1, BRIGHT_BRIGHTNESS);  
-  analogWrite(LED_PIN_2, BRIGHT_BRIGHTNESS);  
-  analogWrite(LED_PIN_3, BRIGHT_BRIGHTNESS);  
-    
-  // Update motion timestamp  
-  motionDetectedTime = millis();  
-  motionActive = true;  
-    
-} else {  
-  // No current motion  
-    
-  // Check if we should return to DIM mode  
-  if (motionActive && (millis() - motionDetectedTime >= BRIGHT_DURATION)) {  
-    // Timeout expired, return to dim  
-    Serial.println("Motion timeout - Returning to DIM mode");  
-    analogWrite(LED_PIN_1, DIM_BRIGHTNESS);  
-    analogWrite(LED_PIN_2, DIM_BRIGHTNESS);  
-    analogWrite(LED_PIN_3, DIM_BRIGHTNESS);  
-    motionActive = false;  
-  } else if (!motionActive) {  
-    // Default night state - DIM mode  
-    analogWrite(LED_PIN_1, DIM_BRIGHTNESS);  
-    analogWrite(LED_PIN_2, DIM_BRIGHTNESS);  
-    analogWrite(LED_PIN_3, DIM_BRIGHTNESS);  
-  }  
+    // إدخال درجات المواد بأسمائها
+    for (int i = 0; i < SUBJECTS; i++) {
+        do {
+            cout << "Enter mark for " << subjectNames[i] << " (0 - 100): ";
+            cin >> students[count].marks[i];
+        } while (students[count].marks[i] < 0 || students[count].marks[i] > 100);
+    }
+
+    calculate(students[count]);
+    count++;
+
+    cout << "Student added successfully!\n\n";
 }
 
-} else {
-// It's DAY - lights should be OFF
-analogWrite(LED_PIN_1, 0);
-analogWrite(LED_PIN_2, 0);
-analogWrite(LED_PIN_3, 0);
-motionActive = false;
+// عرض كل الطلبة
+void displayAll(Student students[], int count) {
+    if (count == 0) {
+        cout << "No students to display.\n\n";
+        return;
+    }
 
-if (lastPirState == HIGH || ldrValue >= LDR_THRESHOLD + 50) {  
-  // Only print once when transitioning  
-  Serial.println("Daytime - All Lights OFF");  
+    for (int i = 0; i < count; i++) {
+        cout << "\n==============================\n";
+        cout << "ID   : " << students[i].id << endl;
+        cout << "Name : " << students[i].name << endl;
+        cout << "Level: " << students[i].level << endl;
+
+        cout << "Marks:\n";
+        for (int j = 0; j < SUBJECTS; j++) {
+            cout << "- " << subjectNames[j]
+                << ": " << students[i].marks[j] << "/100\n";
+        }
+
+        cout << "Total   : " << students[i].total << endl;
+        cout << "Average : " << students[i].average << endl;
+        cout << "Status  : "
+            << (students[i].passed ? "Passed" : "Failed") << endl;
+    }
+    cout << endl;
 }
 
+// البحث بالـ ID
+void searchStudent(Student students[], int count) {
+    int id;
+    cout << "Enter ID to search: ";
+    cin >> id;
+
+    for (int i = 0; i < count; i++) {
+        if (students[i].id == id) {
+            cout << "\nStudent Found!\n";
+            cout << "Name: " << students[i].name << endl;
+            cout << "Level: " << students[i].level << endl;
+
+            cout << "Marks:\n";
+            for (int j = 0; j < SUBJECTS; j++) {
+                cout << "- " << subjectNames[j]
+                    << ": " << students[i].marks[j] << "/100\n";
+            }
+
+            cout << "Average: " << students[i].average << endl;
+            cout << "Status: "
+                << (students[i].passed ? "Passed" : "Failed") << endl;
+            return;
+        }
+    }
+
+    cout << "Student not found.\n\n";
 }
 
-// Store current PIR state for next iteration
-lastPirState = pirState;
+/// حفظ البيانات في ملف  
+void saveToFile(Student students[], int count) {
+    ofstream file("students.txt");
 
-// Small delay for stability
-delay(100);
+    for (int i = 0; i < count; i++) {
+        file << "ID: " << students[i].id << endl;
+        file << "Name: " << students[i].name << endl;
+        file << "Level: " << students[i].level << endl;
+        for (int j = 0; j < SUBJECTS; j++) {
+            file << subjectNames[j] << ": " << students[i].marks[j] << endl;
+        }
+        file << "Total: " << students[i].total << endl;
+        file << "Average: " << students[i].average << endl;
+        file << "Status: " << (students[i].passed ? "Passed" : "Failed") << endl;
+        file << "==============================\n";
+    }
+
+    file.close();
+    cout << "Data saved to file.\n\n";
 }
 
-/*
-HARDWARE CONNECTIONS:
-
-LDR Circuit:
-
-LDR one end → 5V
-
-LDR other end → A0 AND 10kΩ resistor
-
-10kΩ resistor other end → GND
-
-
-PIR Sensor:
-
-VCC → 5V
-
-GND → GND
-
-OUT → D2
-
-
-LED 1:
-
-Arduino D9 → MOSFET Gate (or Relay)
-
-LED + → Power Supply (+)
-
-LED - → MOSFET Drain (or Relay NO)
-
-MOSFET Source → GND
-
-
-LED 2:
-
-Arduino D10 → MOSFET Gate (or Relay)
-
-LED + → Power Supply (+)
-
-LED - → MOSFET Drain (or Relay NO)
-
-MOSFET Source → GND
-
-
-LED 3:
-
-Arduino D11 → MOSFET Gate (or Relay)
-
-LED + → Power Supply (+)
-
-LED - → MOSFET Drain (or Relay NO)
-
-MOSFET Source → GND
-
-
-CALIBRATION NOTES:
-
-1. LDR_THRESHOLD:
-
-Upload code with Serial monitor open
-
-Observe LDR values in different lighting conditions
-
-Set threshold between day and night readings
-
-Example: Day=600-1023, Night=0-300, Threshold=400
-
-
-
-2. DIM_BRIGHTNESS:
-
-Start with 80 (about 30%)
-
-Adjust based on visibility needs and power budget
-
-Lower = more energy saving, but less visibility
-
-
-
-3. BRIGHT_DURATION:
-
-10000ms (10 sec) is typical
-
-Increase for longer areas or slower traffic
-
-Decrease for high-traffic areas to save more energy
-
-
-
-4. PIR Sensitivity:
-
-Most PIR modules have potentiometers for:
-
-Sensitivity (detection range)
-
-Time delay (built-in timer)
-
-
-Adjust these physically on the PIR module
-
-
-
-
-POWER CONSUMPTION:
-
-With 3 LEDs, ensure your solar panel and battery can handle the load
-
-Calculate total current draw (LED current × 3)
-
-Use appropriate MOSFET/Relay rated for total current
-
-Consider using separate power supply for LEDs if needed
-
-
-SOLAR PANEL SIZING (for 3 LEDs):
-
-Multiply your single LED consumption by 3
-
-Add Arduino consumption (~50mA)
-
-Size panel for 4-5 hours of sunlight
-
-Battery should store 2-3 days of consumption
-
-Use charge controller to protect battery
-*/ 
+// BONUS: تحميل البيانات من ملف
+void loadFromFile(Student students[], int& count) {
+    ifstream file("students.txt");
+    count = 0;
+
+    while (file >> students[count].id >> students[count].name) {
+        for (int j = 0; j < SUBJECTS; j++) {
+            file >> students[count].marks[j];
+        }
+        calculate(students[count]);
+        count++;
+    }
+
+    file.close();
+    cout << "Data loaded from file.\n\n";
+}
+
+// main
+int main() {
+    Student students[MAX];
+    int count = 0;
+    int choice;
+
+    do {
+        cout << "===== Student Grade Management System =====\n";
+        cout << "1. Add Student\n";
+        cout << "2. Display All Students\n";
+        cout << "3. Search by ID\n";
+        cout << "4. Save to File (Bonus)\n";
+        cout << "5. Load from File (Bonus)\n";
+        cout << "6. Exit\n";
+        cout << "Choose: ";
+        cin >> choice;
+
+        switch (choice) {
+        case 1: addStudent(students, count); break;
+        case 2: displayAll(students, count); break;
+        case 3: searchStudent(students, count); break;
+        case 4: saveToFile(students, count); break;
+        case 5: loadFromFile(students, count); break;
+        case 6: cout << "Program Ended.\n"; break;
+        default: cout << "Invalid choice!\n";
+        }
+
+    } while (choice != 6);
+
+    return 0;
+}
