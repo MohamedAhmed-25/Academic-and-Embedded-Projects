@@ -1,1 +1,561 @@
+#include <iostream>
+#include <cmath>
+#include <windows.h>
+using namespace std;
 
+void check() { // used with cin.fail if input is invalid
+	cin.clear();
+	cin.ignore(1000, '\n');
+	cout << "Invalid input\n\n";
+	Sleep(750);
+}
+
+int main() {
+	while (true) {  // Infinite loop so the calculator keeps running until the user exits.
+		if (cin.fail()) {
+			cout << "Invalid input " << "\n";
+			cout << "Restarting";
+			Sleep(450); // Used for delay.
+			cout << ".";
+			Sleep(450);
+			cout << ".";
+			Sleep(450);
+			cout << "." << endl << endl;
+			Sleep(900);
+			cin.clear();  // Clears the invalid input
+			cin.ignore(1000, '\n');  // Ignores up to 1000 characters
+			continue;  // Restarts the loop
+		}
+		int choice;
+		const long double pi = 3.14159265358979323846;
+		char deg;
+		double a, b;
+
+
+		cout << "        <== Hello, Ready to start ==>     " << "\n\n";
+		cout << "1. Addition\n";
+		cout << "2. Subtraction\n";
+		cout << "3. Division\n";
+		cout << "4. Multiplication\n";
+		cout << "5. Power\n";
+		cout << "6. Modulus\n";
+		cout << "7. Factorial\n";
+		cout << "8. Sin\n";
+		cout << "9. Cos\n";
+		cout << "10. Tan\n";
+		cout << "11. ArcSin\n";
+		cout << "12. ArcCos\n";
+		cout << "13. ArcTan\n";
+		cout << "14. Ln\n";
+		cout << "15. Square Root\n";
+		cout << "16. Cubic Root\n";
+		cout << "17. Quadratic Formula\n";
+		cout << "18. Hyperbolic Function\n";
+		cout << "19. Exponential Function\n";
+		cout << "20. Graph (Quadratic Equation)\n";
+		cout << "0. Exit\n\n";
+		cout << "Choose: ";
+		cin >> choice;
+
+		if (cin.fail()) {
+
+			cout << "Invalid input " << "\n";
+			cout << "Restarting";
+			Sleep(300);
+			cout << ".";
+			Sleep(300);
+			cout << ".";
+			Sleep(300);
+			cout << "." << endl << endl;
+			Sleep(900);
+			cin.clear();
+			cin.ignore(1000, '\n');
+			continue;  // Restarts the loop
+		}
+
+		if (choice == 0) {
+			cout << "Goodbye." << endl;
+			Sleep(350);
+			break;
+		}
+
+		else if (choice >= 8 && choice <= 13) { // Code runs if the choice is 8, 9, 10, 11, 12 or 13.
+			cout << "for Degree type D for Radian type R: ";
+			cin >> deg;
+			deg = toupper(deg); // Converts input into uppercase.
+			if (deg != 'D' && deg != 'R') {  // Checks if input is invalid.
+				cout << "\n" << "Invalid input\n\n";
+				Sleep(550);
+				continue;
+			}
+		}
+		switch (choice) {
+		case 1:  // Addition
+			cout << "Enter your first number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter your second number: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Your result is: " << a + b << "\n\n";
+			Sleep(1020);
+			break;
+
+
+		case 2:  // Subtraction
+			cout << "Enter your first number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter your second number: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Your result is: " << a - b << "\n\n";
+			Sleep(1020);
+			break;
+
+		case 3:  // This program divides two numbers.
+			cout << "Enter your first number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter your second number: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (b == 0) {
+				cout << "Undefined" << "\n\n";  //Error when the denominator = 0
+				Sleep(550);
+				break;
+			}
+			cout << "Your result is: " << a / b << "\n\n";
+			Sleep(1020);
+			break;
+
+		case 4:  // Multiplication
+			cout << "Enter your first number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter your second number: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Your result is: " << a * b << "\n\n";
+			Sleep(1020);
+
+			break;
+
+		case 5:  // This program calculates the power using pow.
+			cout << "Enter your first number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter your second number: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Your result is: " << pow(a, b) << "\n\n";
+			Sleep(1020);
+			break;
+
+		case 6: // Modulus
+		{
+			int a;
+			int b;
+			cout << "Enter your first number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter your second number: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (b == 0) {
+				cout << "Math Error\n\n";
+				Sleep(750);
+				break;
+			}
+			cout << "Your result is: " << a % b << "\n\n";
+			Sleep(1020);
+			break;
+		}
+
+		case 7:  // Factorial.
+		{
+			int a;
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (a < 0) { // Factorial can't be a negative number
+				cout << "Math Error\n\n";
+				Sleep(750);
+				break;
+			}
+			long double sum = 1;
+			for (int i = 1; i <= a; i++) { // Multiplys from 1 to a
+				sum *= i;
+			}
+			cout << "Your result is: " << sum << "\n\n";
+			Sleep(1020);
+
+			break;
+		}
+
+
+		case 8: // Sin
+		{
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (deg == 'D') {
+				a = a * pi / 180;
+			}
+			cout << "Your result is: " << sin(a) << "\n\n";
+
+			Sleep(1020);
+
+			break;
+		}
+		case 9:  // Cos
+		{
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (deg == 'D') {
+				a = a * pi / 180;
+			}
+			cout << "Your result is: " << cos(a) << "\n\n";
+
+			Sleep(1020);
+
+			break;
+		}
+		case 10:  // tan
+		{
+
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (deg == 'D') {
+				a = a * pi / 180;
+			}
+
+			cout << "Your result is: " << tan(a) << "\n\n";
+
+			Sleep(1020);
+
+			break;
+		}
+		case 11:  // Arc sin
+			// Ammar
+		{
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (a < -1 || a > 1) {  // Arc sin takes from -1 to 1 only
+				cout << "Math Error\n\n";
+				Sleep(750);
+				break;
+			}
+			a = asin(a);
+			if (deg == 'D') {
+				a = a * 180 / pi;
+			}
+			cout << "Your result is: " << a << "\n\n";
+
+			Sleep(1020);
+
+			break;
+		}
+		case 12:  // Arc cos
+		{
+
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (a < -1 || a > 1) {
+				cout << "Math Error\n\n";  // Arc cos takes from -1 to 1 only
+				Sleep(750);
+				break;
+			}
+			a = acos(a);
+			if (deg == 'D') {
+				a = a * 180 / pi;
+			}
+			cout << "Your result is: " << a << "\n\n";
+
+			Sleep(1020);
+
+			break;
+		}
+		case 13:  // Arc tan
+		{
+
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			a = atan(a);
+			if (deg == 'D') {
+				a = a * 180 / pi;
+			}
+
+			cout << "Your result is: " << a << "\n\n";
+
+			Sleep(1020);
+
+			break;
+		}
+		case 14:  // ln
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (a <= 0) {
+				cout << "Math Error\n\n";
+				Sleep(750);
+				break;
+			}
+			cout << "Your result is: " << log(a) << "\n\n";
+
+			Sleep(1020);
+
+			break;
+
+		case 15:  // Square root using sqrt
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (a < 0) {
+				cout << "Your number can't be a negative under a square root.\n\n";
+				Sleep(570);
+				break;
+			}
+			cout << "Your result is: " << sqrt(a) << "\n\n";
+			Sleep(1020);
+
+			break;
+		case 16:  // Cubic root using cbrt
+			cout << "Enter your number: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Your result is: " << cbrt(a) << "\n\n";
+			Sleep(1020);
+			break;
+		case 17:  // Quadratic formula
+		{
+			double c, d, x1, x2, xim;
+			cout << "Enter A: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			if (a == 0) {  // fraction denominator will be = 0
+				cout << "Math Error\n\n";
+				Sleep(750);
+				break;
+			}
+			cout << "Enter B: ";
+			cin >> b;
+			cout << "Enter C: ";
+			cin >> c;
+			d = (pow(b, 2)) - (4 * a * c);
+			if (d < 0) {
+				x1 = (-b) / (2 * a);
+				xim = sqrt(-d) / (2 * a);
+				cout << "X1 = " << x1 << " + " << xim << "i" << "\n";
+				cout << "X2 = " << x1 << " - " << xim << "i" << "\n\n";
+			}
+			else if (d == 0) {
+				x1 = (-b) / (2 * a);
+				cout << "X1 = " << x1 << "\n";
+				cout << "X2 = " << x1 << "\n\n";
+			}
+			else {
+				x1 = ((-b) + (sqrt(d))) / (2 * a);
+				x2 = ((-b) - (sqrt(d))) / (2 * a);
+				cout << "X1 = " << x1 << "\n";
+				cout << "X2 = " << x2 << "\n\n";
+			}
+			Sleep(1111);
+			break;
+		}
+		case 18:  // Hyperbolic functions
+			int ch;
+			cout << "1. Sinh\n";
+			cout << "2. Cosh\n";
+			cout << "3. Tanh\n\n";
+			cout << "Choose: ";
+			cin >> ch;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+
+			if (ch == 1) {
+				cout << "Enter your number: ";
+				cin >> a;
+				if (cin.fail()) {
+					check();
+					break;
+				}
+				cout << "Your result is: " << sinh(a) << "\n\n";
+			}
+
+			else if (ch == 2) {
+				cout << "Enter your number: ";
+				cin >> a;
+				if (cin.fail()) {
+					check();
+					break;
+				}
+				cout << "Your result is: " << cosh(a) << "\n\n";
+			}
+
+			else if (ch == 3) {
+				cout << "Enter your number: ";
+				cin >> a;
+				if (cin.fail()) {
+					check();
+					break;
+				}
+				cout << "Your result is: " << tanh(a) << "\n\n";
+			}
+			else {
+				cout << "Invalid Number";
+				Sleep(550);
+				break;
+			}
+			Sleep(1020);
+			break;
+		case 19:  // Exponential function
+			cout << "Enter your power: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Your result is: " << exp(a) << "\n\n";
+			Sleep(1020);
+			break;
+		case 20: // graph for quadratic equation
+		{
+			double c;
+
+			cout << "Enter a: ";
+			cin >> a;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter b: ";
+			cin >> b;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+			cout << "Enter c: ";
+			cin >> c;
+			if (cin.fail()) {
+				check();
+				break;
+			}
+
+			for (int y = 10; y >= -10; y--) {
+
+				for (int x = -20; x <= 20; x++) {
+
+					double x0 = x / 3.0;
+
+					double y0 = a * x0 * x0 + b * x0 + c;
+
+
+
+					if (fabs(y0 - y) < 0.5) {  // fabs is used for the float absolute.
+						cout << "*";
+					}
+					else if (x == 0 && y == 0) {  // The origin point.
+						cout << "o";
+					}
+					else if (x == 0) {  // For the X axis.
+						cout << "|";
+					}
+					else if (y == 0) {  // For the Y axis.
+						cout << "-";
+					}
+					else {  // To make spaces for drawing the graph
+						cout << " ";
+					}
+
+				}
+
+				cout << endl;
+
+			}
+			Sleep(1212);
+			break;
+		}
+		default:  // If user enters an invalid choice
+			cout << "Invalid Number" << "\n\n";
+			Sleep(550);
+			break;
+		}
+	}
+}
